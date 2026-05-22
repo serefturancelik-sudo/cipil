@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
     <title>Çipil Donut - Üyelik ve Paylaşım Dünyası</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Cipil%20Donut%22,%22short_name%22:%22Cipil%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23121212%22,%22theme_color%22:%22%23121212%22,%22orientation%22:%22portrait%22}">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
@@ -170,7 +178,6 @@
     </div>
 
     <script>
-        // 50 Onaylı E-posta Listesi
         const izinliEpostalar = [
             "cipil@donut.com", "cipildonut@io.com", "serefturancelik@sudo.com", "robotistan@cipil.com", 
             "arduino@leonardo.com", "oruldu@altinordu.com", "ordu@cipil.com", "deneyap@turkiye.com",
@@ -187,7 +194,6 @@
             "turkcell@aile.com", "cipilpro@donut.com"
         ];
 
-        // Sistem Hafıza Yönetimi
         let para = parseInt(localStorage.getItem("cipil_para")) || 0;
         let acikSkinler = JSON.parse(localStorage.getItem("cipil_skins")) || ["🍩"];
         let seciliSkin = "🍩";
@@ -195,7 +201,6 @@
         let aktifGirisYapan = null;
 
         window.onload = function() {
-            // Paylaşım ekranı kontrolü
             let gosterilsinMi = localStorage.getItem("cipil_paylasim_gosterme");
             new QRCode(document.getElementById("site-paylas-qr"), { text: window.location.href, width: 160, height: 160 });
 
@@ -231,8 +236,8 @@
             let user = document.getElementById("reg-kullanici").value.trim();
             let pass = document.getElementById("reg-sifre").value.trim();
 
-            if(!izinliEpostalar.includes(eposta)) { alert("Bu e-posta sistemde kayıtlı listesinde yok balım!"); return; }
-            if(!user || !pass) { alert("Lütfen tüm alanları doldur balım!"); return; }
+            if(!izinliEpostalar.includes(eposta)) { alert("Bu e-posta sistemde kayıtlı listesinde yok Çipil!"); return; }
+            if(!user || !pass) { alert("Lütfen tüm alanları doldur Çipil!"); return; }
             if(kayitliKullanicilar[user]) { alert("Bu kullanıcı adı zaten alınmış!"); return; }
 
             kayitliKullanicilar[user] = { eposta: eposta, sifre: pass };
@@ -253,7 +258,7 @@
                 document.getElementById("menu-cuzdan").innerText = para;
                 if(acikSkinler.includes("🍔")) document.getElementById("skin-btn-1").innerText = "SEÇ";
             } else {
-                alert("Hatalı kullanıcı adı veya şifre girdin balım!");
+                alert("Hatalı kullanıcı adı veya şifre girdin Çipil!");
             }
         }
 
@@ -267,11 +272,11 @@
                     document.getElementById("menu-cuzdan").innerText = para;
                     document.getElementById("skin-btn-1").innerText = "SEÇ";
                     seciliSkin = skin; document.getElementById("sepet").innerText = skin; alert(skin + " satın alındı!");
-                } else { alert("Yeterli paran yok balım!"); }
+                } else { alert("Yeterli paran yok Çipil!"); }
             }
         }
 
-        // OYUN VE NETWORK (PEERJS) KODLARI
+        // OYUN VE NETWORK (PEERJS) MOTORU
         let skor = 0; let rakipSkor = 0; let can = 3;
         let oyunAktif = false; let sepetX = 50; let rakipX = 50;
         const sepetHizi = 1.8; let oyunModu = "solo";
@@ -412,7 +417,7 @@
                             can--; document.getElementById("can-tabelasi").innerText = can;
                             if (can <= 0) {
                                 oyunAktif = false; para += skor; localStorage.setItem("cipil_para", para);
-                                alert("BOMBALARA YAKALANDIN BALIM!\nKazanılan: " + skor + " TL");
+                                alert("BOMBALARA YAKALANDIN ÇİPİL!\nKazanılan: " + skor + " TL");
                                 location.reload();
                             }
                         }
