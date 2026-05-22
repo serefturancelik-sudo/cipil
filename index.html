@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Çipil Donut - Gelişmiş Pro Sürüm</title>
+    <title>Çipil Donut - Kesin Pro Sürüm</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -40,6 +40,15 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); transition: 0.2s;
         }
         .buton:active { transform: scale(0.98); }
+
+        /* BENI HATIRLA ALANININ CSS'I GÖRÜNÜR YAPILDI */
+        .hatirla-container {
+            display: flex; align-items: center; justify-content: center;
+            width: 260px; margin: 5px auto 15px auto; padding: 5px;
+            background: rgba(0, 255, 204, 0.1); border-radius: 6px; border: 1px dashed #00ffcc;
+        }
+        .hatirla-container input { cursor: pointer; margin-right: 8px; width: 16px; height: 16px; }
+        .hatirla-container label { cursor: pointer; font-size: 14px; color: #00ffcc; font-weight: bold; }
 
         #paylasim-ekrani { display: none; }
         .qr-kagit {
@@ -113,21 +122,20 @@
             <input type="text" id="reg-kullanici" placeholder="Yeni Kullanıcı Adın..." class="input-kutusu"><br>
             <input type="password" id="reg-sifre" placeholder="Giriş Şifresi Belirle..." class="input-kutusu"><br>
             <button onclick="hesapOlustur()" class="buton" style="background-color: #a83294;">🔐 Kaydol ve Profil Yarat</button>
-            <p style="font-size: 13px; color: #666; margin-top: 10px;">Zaten kaydolduysan: <a href="#" onclick="authPanelDegis(false)" style="color:#00ffcc; text-decoration:none;">Giriş Yap</a></p>
+            <p style="font-size: 13px; color: #666; margin-top: 10px;">Zaten kaydolduysan: <a href="#" onclick="authPanelDegis(false)" style="color:#00ffcc; text-decoration:none; font-weight:bold;">Giriş Yap</a></p>
         </div>
 
         <div id="giris-paneli" style="display: none;">
             <input type="text" id="login-kullanici" placeholder="Kullanıcı Adın..." class="input-kutusu"><br>
             <input type="password" id="login-sifre" placeholder="Şifren..." class="input-kutusu"><br>
             
-            <div style="margin-bottom: 15px; text-align: center;">
-                <label style="font-size: 14px; color: #00ffcc; cursor: pointer;">
-                    <input type="checkbox" id="login-beni-hatirla"> 💾 Beni Hatırla
-                </label>
+            <div class="hatirla-container">
+                <input type="checkbox" id="login-beni-hatirla">
+                <label for="login-beni-hatirla">💾 Beni Hatırla</label>
             </div>
 
             <button onclick="hesapGirisYap()" class="buton" style="background-color: #00ffcc; color:#121212;">🔓 Giriş Yap</button>
-            <p style="font-size: 13px; color: #666; margin-top: 10px;">Hesabın yoksa: <a href="#" onclick="authPanelDegis(true)" style="color:#a83294; text-decoration:none;">Kaydol</a></p>
+            <p style="font-size: 13px; color: #666; margin-top: 10px;">Hesabın yoksa: <a href="#" onclick="authPanelDegis(true)" style="color:#a83294; text-decoration:none; font-weight:bold;">Kaydol</a></p>
         </div>
     </div>
 
@@ -215,13 +223,13 @@
         let kayitliKullanicilar = JSON.parse(localStorage.getItem("cipil_users")) || {};
         let aktifGirisYapan = null;
         
-        let mevcutKameraYonu = "environment"; // Varsayılan arka kamera
+        let mevcutKameraYonu = "environment"; // Varsayılan arka
         let html5QrcodeScanner = null;
 
         window.onload = function() {
             new QRCode(document.getElementById("site-paylas-qr"), { text: window.location.href, width: 160, height: 160 });
             
-            // BENİ HATIRLA KONTROLÜ
+            // AUTOMATIC LOGIN (BENİ HATIRLA GİRİŞ SİSTEMİ)
             let hatirlananKullanici = localStorage.getItem("cipil_hatirlanan_user");
             if (hatirlananKullanici && kayitliKullanicilar[hatirlananKullanici]) {
                 aktifGirisYapan = hatirlananKullanici;
@@ -281,9 +289,11 @@
             if(kayitliKullanicilar[user] && kayitliKullanicilar[user].sifre === pass) {
                 aktifGirisYapan = user;
                 
-                // Beni hatırla seçildiyse hafızaya al
+                // Eğer kutu işaretliyse yerel hafızaya kullanıcı adını kaydet
                 if(document.getElementById("login-beni-hatirla").checked) {
                     localStorage.setItem("cipil_hatirlanan_user", user);
+                } else {
+                    localStorage.removeItem("cipil_hatirlanan_user");
                 }
 
                 document.getElementById("auth-ekrani").style.display = "none";
@@ -314,7 +324,7 @@
             }
         }
 
-        // OYUN VE NETWORK (PEERJS) MOTORU
+        // NETWORK VE TARAYICI MOTORLARI
         let skor = 0; let rakipSkor = 0; let can = 3;
         let oyunAktif = false; let sepetX = 50; let rakipX = 50;
         const sepetHizi = 1.8; let oyunModu = "solo";
@@ -341,14 +351,14 @@
 
         function kameraBaslat(yon) {
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => { taranmayaBasla(yon); });
+                html5QrcodeScanner.clear().then(() => { taranmayaBasla(yon); }).catch(() => { taranmayaBasla(yon); });
             } else {
                 taranmayaBasla(yon);
             }
         }
 
         function taranmayaBasla(yon) {
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220, videoConstraints: { facingMode: yon } });
             html5QrcodeScanner.render((decodedText) => {
                 html5QrcodeScanner.clear();
                 document.getElementById("menu-kamera-alani").style.display = "none";
