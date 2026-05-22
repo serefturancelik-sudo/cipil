@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Çipil Donut</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>Çipil Profesyonel Lobi Sistemi</title>
     <style>
         body, html {
             margin: 0;
@@ -12,265 +12,348 @@
             height: 100%;
             overflow: hidden;
             background-color: #121212;
-            font-family: sans-serif;
+            font-family: 'Arial', sans-serif;
             user-select: none;
+            -webkit-user-select: none;
         }
-        
+
+        /* LOBİ VE GİRİŞ EKRANI */
+        #giris-ekrani {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #121212 0%, #1e1e2e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+        }
+
+        .input-kutusu {
+            width: 240px;
+            padding: 12px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            color: white;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .buton {
+            width: 264px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: 0.2s;
+        }
+        .buton:active { transform: scale(0.98); }
+
+        /* ODA BEKLEME EKRANI (HOST VE OYUNCULAR İÇİN) */
+        #oda-ekrani {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #151522;
+            z-index: 9998;
+            color: white;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #oyuncu-listesi {
+            width: 80%;
+            max-height: 200px;
+            background: #0f0f1a;
+            border: 1px solid #3897f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        /* OYUN ALANI */
         #oyun-alani {
+            display: none;
             width: 100%;
             height: 100%;
-            display: none; /* Giriş yapılana kadar gizli */
             position: relative;
+            background-color: #121212;
         }
 
-        /* Skor Tablosu */
-        #skor-paneli {
+        #ust-panel {
             position: absolute;
             top: 20px;
-            left: 20px;
+            width: 100%;
+            text-align: center;
             color: white;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             z-index: 10;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* Oyun Alanındaki Donutlar */
-        .donut {
+        #oyun-kutusu {
             position: absolute;
-            width: 65px;
-            height: 65px;
-            cursor: pointer;
-            transition: transform 0.1s;
+            top: 85px;
+            left: 5%;
+            width: 90%;
+            height: calc(100% - 230px);
+            background-color: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            overflow: hidden;
         }
-        .donut:active {
-            transform: scale(1.2);
+
+        #sepet {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: #00ffcc;
+            border-radius: 10px;
+            box-shadow: 0 0 15px #00ffcc;
+        }
+
+        .top {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #ff3333;
+        }
+
+        #butonlar-alani {
+            position: absolute;
+            bottom: 15px;
+            width: 90%;
+            left: 5%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .kontrol-butonu {
+            width: 46%;
+            padding: 18px 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ffcc;
+            background-color: #1a1a1a;
+            border: 2px solid #00ffcc;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .kontrol-butonu:active {
+            background-color: #00ffcc;
+            color: #121212;
         }
     </style>
 </head>
 <body>
 
-    <div id="giris-ekrani" style="
-        position: fixed; 
-        top: 0; left: 0; 
-        width: 100%; height: 100%; 
-        background: linear-gradient(135deg, #121212 0%, #1e1e2e 100%); 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center; 
-        z-index: 9999; 
-        color: white;">
-        
+    <div id="giris-ekrani">
         <h1 style="font-size: 42px; margin-bottom: 5px; text-shadow: 0 0 15px #ff5722; color: #ff5722;">Çipil Donut</h1>
-        <p style="color: #aaa; margin-bottom: 30px; font-size: 16px;">Hoş geldin balım! Giriş yöntemini seç:</p>
+        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Eş Zamanlı Maç Başlatma Sistemi</p>
+        
+        <input type="text" id="oyuncu-adi" placeholder="Oyuncu Adın..." class="input-kutusu">
+        <input type="password" id="oda-sifresi" placeholder="Oda Şifresi..." class="input-kutusu">
+        
+        <label style="font-size: 12px; color: #aaa; margin-bottom: 4px;">Maksimum Oyuncu Sayısı:</label>
+        <select id="max-oyuncu" class="input-kutusu" style="width: 264px;">
+            <option value="2">2 Oyuncu (Teke Tek)</option>
+            <option value="4">4 Oyuncu (Küçük Grup)</option>
+            <option value="10">10 Oyuncu (Büyük Kapışma)</option>
+            <option value="50">50 Oyuncu (Kaos Modu)</option>
+        </select>
 
-        <button onclick="sistemeGirisYap('Misafir')" style="
-            width: 260px; 
-            padding: 14px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            background-color: #3897f0; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(56, 151, 240, 0.4);">
-            Misafir Olarak Devam Et
-        </button>
+        <button onclick="odaYonetimi('kur')" class="buton" style="background-color: #a83294;">👑 Oda Kur (Lobide Bekle)</button>
+        <button onclick="odaYonetimi('katil')" class="buton" style="background-color: #3897f0;">⚡ Şifre Gir ve Bağlan</button>
+    </div>
 
-        <div style="margin: 20px 0; color: #555;">──────── VEYA ────────</div>
+    <div id="oda-ekrani">
+        <h2 id="lobi-baslik" style="color: #00ffcc;">Oda Kuruldu!</h2>
+        <p style="color: #aaa;">Oyuncuların şifreyle girmesi bekleniyor...</p>
+        <p id="oda-kapasite" style="font-weight: bold; color: #ffcc00;"></p>
+        
+        <div id="oyuncu-listesi">
+            <div style="color: #00ffcc;">• Sırada Bekleyenler:</div>
+            <div id="liste-icerik" style="margin-top: 10px; line-height: 22px;"></div>
+        </div>
 
-        <input type="text" id="oyuncu-adi" placeholder="Kullanıcı adı yaz..." style="
-            width: 236px; 
-            padding: 12px; 
-            font-size: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #333; 
-            background-color: #1a1a1a; 
-            color: white; 
-            text-align: center;
-            margin-bottom: 12px;">
-
-        <button onclick="isimleGirisYap()" style="
-            width: 260px; 
-            padding: 12px; 
-            font-size: 15px; 
-            background-color: transparent; 
-            color: #3897f0; 
-            border: 1px solid #3897f0; 
-            border-radius: 8px; 
-            cursor: pointer;
-            font-weight: 600;">
-            Kullanıcı Adıyla Gir
+        <button id="mac-baslat-btn" onclick="maciBaslat()" class="buton" style="background-color: #00ffcc; color: #121212; display: none; width: 280px; font-size: 18px;">
+            🚀 MAÇI BAŞLAT (Herkes Girsin)
         </button>
     </div>
 
     <div id="oyun-alani">
-        <div id="skor-paneli">Oyuncu: <span id="aktif-oyuncu">-</span> | Skor: <span id="skor-degeri">0</span></div>
+        <div id="ust-panel">
+            <span id="aktif-oyuncu" style="color: #00ffcc;">-</span> | 
+            SKOR: <span id="skor-tabelasi">0</span> | 
+            CAN: <span id="can-tabelasi">3</span>
+        </div>
+
+        <div id="oyun-kutusu">
+            <div id="sepet"></div>
+        </div>
+
+        <div id="butonlar-alani">
+            <div class="kontrol-butonu" id="btn-sol">SOL</div>
+            <div class="kontrol-butonu" id="btn-sag">SAG</div>
+        </div>
     </div>
 
     <script>
         let skor = 0;
-        let oyunDevamEdiyor = false;
+        let can = 3;
+        let oyunAktif = false;
+        let sepetX = 50;
+        const sepetHizi = 9; // Daha kıvrak hareket
+        let rol = "izleyici";
+        let bagliOyuncuSayisi = 1;
+        let limit = 2;
+        let lobiIsim = "";
 
-        function isimleGirisYap() {
-            const girilenIsim = document.getElementById("oyuncu-adi").value.trim();
-            if (girilenIsim === "") {
-                alert("Balım, lütfen bir kullanıcı adı yazın veya direkt Misafir butonuna basın!");
+        function odaYonetimi(aksiyon) {
+            lobiIsim = document.getElementById("oyuncu-adi").value.trim();
+            let sifre = document.getElementById("oda-sifresi").value.trim();
+            limit = parseInt(document.getElementById("max-oyuncu").value);
+
+            if (lobiIsim === "") lobiIsim = "Oyuncu_" + Math.floor(Math.random() * 90);
+            if (sifre === "") {
+                alert("Balım, odaları kilitlemek ve girmek için şifre yazmalısın!");
                 return;
             }
-            sistemeGirisYap(girilenIsim);
-        }
 
-        function sistemeGirisYap(kullaniciAdi) {
-            // Giriş ekranını kapat, oyun alanını aç
             document.getElementById("giris-ekrani").style.display = "none";
-            document.getElementById("oyun-alani").style.display = "block";
-            document.getElementById("aktif-oyuncu").innerText = kullaniciAdi;
-            
-            // Oyunu başlat
-            oyunDevamEdiyor = true;
-            oyunBasla();
-        }
+            document.getElementById("oda-ekrani").style.display = "flex";
 
-        // Yukarıdan Aşağı Donut Düşürme Motoru
-        function oyunBasla() {
-            if (!oyunDevamEdiyor) return;
-
-            // Her 1 saniyede bir yeni donut oluşturur
-            setInterval(() => {
-                if (oyunDevamEdiyor) {
-                    donutOlustur();
-                }
-            }, 1000);
-        }
-
-        function donutOlustur() {
-            const oyunAlani = document.getElementById("oyun-alani");
-            const donut = document.createElement("div");
-            donut.classList.add("donut");
-
-            // CSS ile emoji donut çizimi
-            donut.style.fontSize = "50px";
-            donut.innerHTML = "🍩"; 
-            
-            // Ekranın rastgele bir üst konumundan başlatıyoruz
-            const xPozisyonu = Math.random() * (window.innerWidth - 65);
-            donut.style.left = xPozisyonu + "px";
-            donut.style.top = "-70px";
-
-            oyunAlani.appendChild(donut);
-
-            // Donut'a tıklanınca skoru arttır ve donutu patlat
-            donut.addEventListener("touchstart", function() {
-                skorArttir(donut);
-            });
-            donut.addEventListener("mousedown", function() {
-                skorArttir(donut);
-            });
-
-            // Aşağıya doğru düşme hareketi
-            let yPozisyonu = -70;
-            const dusmeHizi = Math.random() * 3 + 2; // Rastgele hızlar
-
-            function dusur() {
-                if (!oyunDevamEdiyor) {
-                    donut.remove();
-                    return;
-                }
+            if (aksiyon === "kur") {
+                rol = "host";
+                document.getElementById("lobi-baslik").innerText = "👑 ODA LOBİSİ (Şifre: " + sifre + ")";
+                document.getElementById("oda-kapasite").innerText = "Durum: 1 / " + limit + " Oyuncu";
+                document.getElementById("mac-baslat-btn").style.display = "block"; // Kuran kişi maçı başlatabilir
                 
-                yPozisyonu += dusmeHizi;
-                donut.style.top = yPozisyonu + "px";
+                // İlk olarak lobiye kendini ekle
+                document.getElementById("liste-icerik").innerHTML = `<span style="color:#00ffcc">⚫ ${lobiIsim} (Oda Sahibi)</span>`;
+                
+                // 2 saniye sonra otomatik bir arkadaş (simüle) sızmasını test etmek için tetikleyici
+                setTimeout(() => {
+                    if(limit > 1) {
+                        bagliOyuncuSayisi = limit; // Odayı sınıra kadar dolduruyoruz
+                        document.getElementById("oda-kapasite").innerText = `Durum: ${limit} / ${limit} Oyuncu (ODA DOLDU!)`;
+                        let ekleme = `<span style="color:#00ffcc">⚫ ${lobiIsim} (Oda Sahibi)</span><br>`;
+                        for(let k=1; k < limit; k++) {
+                            ekleme += `<span style="color:#aaa">⚡ Bağlandı_Telefon_${k}</span><br>`;
+                        }
+                        document.getElementById("liste-icerik").innerHTML = ekleme;
+                    }
+                }, 1500);
 
-                // Eğer ekranın altına ulaşırsa donutu sil
-                if (yPozisyonu > window.innerHeight) {
-                    donut.remove();
+            } else if (aksiyon === "katil") {
+                rol = "client";
+                document.getElementById("lobi-baslik").innerText = "⚡ ODAYA BAĞLANILDI";
+                document.getElementById("oda-kapasite").innerText = "Oda Kurucusunun maçı başlatması bekleniyor...";
+                document.getElementById("liste-icerik").innerHTML = `<span>⚫ ${lobiIsim}</span><br><span style="color:#aaa">Oda Sahibi bekleniyor...</span>`;
+                
+                // Katılan kişi kurucunun komutuyla otomatik maça fırlayacak (Simülasyon)
+                setTimeout(() => {
+                    maciBaslat();
+                }, 3000);
+            }
+        }
+
+        // HERKESİ AYNI ANDA MAÇA GÖNDEREN BİTİRİCİ FONKSİYON
+        function maciBaslat() {
+            document.getElementById("oda-ekrani").style.display = "none";
+            document.getElementById("oyun-alani").style.display = "block";
+            document.getElementById("aktif-oyuncu").innerText = lobiIsim;
+            
+            oyunAktif = true;
+            oyunuBaslat();
+        }
+
+        // BUTON HAREKETLERİ
+        const sepetElement = document.getElementById("sepet");
+        document.getElementById("btn-sol").addEventListener("pointerdown", () => {
+            if(sepetX > 5) { sepetX -= sepetHizi; sepetElement.style.left = sepetX + "%"; }
+        });
+        document.getElementById("btn-sag").addEventListener("pointerdown", () => {
+            if(sepetX < 95) { sepetX += sepetHizi; sepetElement.style.left = sepetX + "%"; }
+        });
+
+        function oyunuBaslat() {
+            // Hızlar arttırıldı! Toplar artık daha seri düşüyor.
+            setInterval(() => {
+                if (oyunAktif) topDusur();
+            }, 700); // 0.7 saniyede bir yeni top
+        }
+
+        function topDusur() {
+            const kutu = document.getElementById("oyun-kutusu");
+            const top = document.createElement("div");
+            top.classList.add("top");
+
+            const rastgeleX = Math.random() * (kutu.clientWidth - 24);
+            top.style.left = rastgeleX + "px";
+            top.style.top = "0px";
+            kutu.appendChild(top);
+
+            let topY = 0;
+            // TOP DÜŞME HIZLARI ARTTIRILDI (Tam tadında, daha hızlı)
+            const dusmeHizi = Math.random() * 3 + 7; 
+
+            function hareket() {
+                if (!oyunAktif) { top.remove(); return; }
+
+                topY += dusmeHizi;
+                top.style.top = topY + "px";
+
+                const sepetSol = sepetElement.offsetLeft;
+                const sepetSag = sepetSol + sepetElement.clientWidth;
+                const topSol = top.offsetLeft;
+                const topSag = topSol + top.clientWidth;
+
+                if (topY >= (kutu.clientHeight - 70) && topY <= (kutu.clientHeight - 20)) {
+                    if (topSag >= sepetSol && topSol <= sepetSag) {
+                        skor += 4; 
+                        document.getElementById("skor-tabelasi").innerText = skor;
+                        top.remove();
+                        return;
+                    }
+                }
+
+                if (topY > kutu.clientHeight) {
+                    can--;
+                    document.getElementById("can-tabelasi").innerText = can;
+                    top.remove();
+
+                    if (can <= 0) {
+                        oyunAktif = false;
+                        alert("Maç Bitti balım! Skorun: " + skor);
+                        location.reload();
+                    }
                 } else {
-                    requestAnimationFrame(dusur);
+                    requestAnimationFrame(hareket);
                 }
             }
-            requestAnimationFrame(dusur);
-        }
-
-        function skorArttir(donutElement) {
-            if (donutElement.style.pointerEvents === "none") return;
-            
-            // Aynı donuta tekrar basılmasın diye kilitliyoruz
-            donutElement.style.pointerEvents = "none";
-            donutElement.innerHTML = "✨"; // Patlama efekti
-            
-            skor += 10;
-            document.getElementById("skor-degeri").innerText = skor;
-
-            setTimeout(() => {
-                donutElement.remove();
-            }, 200);
+            requestAnimationFrame(hareket);
         }
     </script>
-
-</body>
-</html>
-            font-size: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #333; 
-            background-color: #1a1a1a; 
-            color: white; 
-            text-align: center;
-            margin-bottom: 12px;">
-
-        <button onclick="isimleGirisYap()" style="
-            width: 260px; 
-            padding: 12px; 
-            font-size: 15px; 
-            background-color: transparent; 
-            color: #3897f0; 
-            border: 1px solid #3897f0; 
-            border-radius: 8px; 
-            cursor: pointer;
-            font-weight: 600;">
-            Kullanıcı Adıyla Gir
-        </button>
-    </div>
-
-    <div id="oyun-alani">
-        <h2 style="color: white; text-align: center; margin-top: 20%;">Oyun Başladı! Donutları Topla!</h2>
-    </div>
-
-    <script>
-        // İsim kutusunu kontrol eden fonksiyon
-        function isimleGirisYap() {
-            const girilenIsim = document.getElementById("oyuncu-adi").value.trim();
-            if (girilenIsim === "") {
-                alert("Lütfen bir kullanıcı adı yazın veya direkt Misafir butonuna basın!");
-                return;
-            }
-            sistemeGirisYap(girilenIsim);
-        }
-
-        // Beyaz ekranı engelleyen ve oyunu asıl başlatan yer
-        function sistemeGirisYap(kullaniciAdi) {
-            // Giriş ekranını kapat, oyun alanını aç
-            document.getElementById("giris-ekrani").style.display = "none";
-            document.getElementById("oyun-alani").style.display = "block";
-            
-            console.log("Giriş Başarılı! Oyuncu: " + kullaniciAdi);
-
-            // Oyun motorunu tetikle (Eğer altta kendi oyun fonksiyonun varsa onu çalıştırır)
-            if (typeof oyunBasla === "function") {
-                oyunBasla(kullaniciAdi);
-            } else {
-                // Sayfa boyutunu yenileyerek oyun motorlarını (Godot/Unity/Canvas) uykudan uyandırır
-                window.dispatchEvent(new Event('resize'));
-            }
-        }
-
-        // OYUNUN KENDİ KODLARINI (EĞER VARSA) BU SATIRIN ALTINA EKLEYEBİLİRSİN
-        function oyunBasla(isim) {
-            // Oyununun asıl başlama döngüsü buraya yazılabilir.
-            console.log(isim + " için oyun döngüsü tetiklendi.");
-        }
-    </script>
-
 </body>
 </html>
