@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Çipil Donut</title>
     <style>
-        /* Tüm sayfa ve oyun alanı ayarları */
         body, html {
             margin: 0;
             padding: 0;
@@ -13,12 +12,39 @@
             height: 100%;
             overflow: hidden;
             background-color: #121212;
+            font-family: sans-serif;
+            user-select: none;
         }
         
         #oyun-alani {
             width: 100%;
             height: 100%;
-            display: none; /* Giriş yapılana kadar oyun gizli kalır */
+            display: none; /* Giriş yapılana kadar gizli */
+            position: relative;
+        }
+
+        /* Skor Tablosu */
+        #skor-paneli {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* Oyun Alanındaki Donutlar */
+        .donut {
+            position: absolute;
+            width: 65px;
+            height: 65px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .donut:active {
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -34,13 +60,12 @@
         align-items: center; 
         justify-content: center; 
         z-index: 9999; 
-        font-family: sans-serif;
         color: white;">
         
-        <h1 style="font-size: 36px; margin-bottom: 10px; text-shadow: 0 0 10px #ff5722; color: #ff5722;">Çipil Donut</h1>
-        <p style="color: #aaa; margin-bottom: 30px; font-size: 16px;">Hoş geldin! Giriş yöntemini seç:</p>
+        <h1 style="font-size: 42px; margin-bottom: 5px; text-shadow: 0 0 15px #ff5722; color: #ff5722;">Çipil Donut</h1>
+        <p style="color: #aaa; margin-bottom: 30px; font-size: 16px;">Hoş geldin balım! Giriş yöntemini seç:</p>
 
-        <button onclick="sistemeGirisYap('Misafir Oyuncu')" style="
+        <button onclick="sistemeGirisYap('Misafir')" style="
             width: 260px; 
             padding: 14px; 
             font-size: 16px; 
@@ -59,6 +84,133 @@
         <input type="text" id="oyuncu-adi" placeholder="Kullanıcı adı yaz..." style="
             width: 236px; 
             padding: 12px; 
+            font-size: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #333; 
+            background-color: #1a1a1a; 
+            color: white; 
+            text-align: center;
+            margin-bottom: 12px;">
+
+        <button onclick="isimleGirisYap()" style="
+            width: 260px; 
+            padding: 12px; 
+            font-size: 15px; 
+            background-color: transparent; 
+            color: #3897f0; 
+            border: 1px solid #3897f0; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-weight: 600;">
+            Kullanıcı Adıyla Gir
+        </button>
+    </div>
+
+    <div id="oyun-alani">
+        <div id="skor-paneli">Oyuncu: <span id="aktif-oyuncu">-</span> | Skor: <span id="skor-degeri">0</span></div>
+    </div>
+
+    <script>
+        let skor = 0;
+        let oyunDevamEdiyor = false;
+
+        function isimleGirisYap() {
+            const girilenIsim = document.getElementById("oyuncu-adi").value.trim();
+            if (girilenIsim === "") {
+                alert("Balım, lütfen bir kullanıcı adı yazın veya direkt Misafir butonuna basın!");
+                return;
+            }
+            sistemeGirisYap(girilenIsim);
+        }
+
+        function sistemeGirisYap(kullaniciAdi) {
+            // Giriş ekranını kapat, oyun alanını aç
+            document.getElementById("giris-ekrani").style.display = "none";
+            document.getElementById("oyun-alani").style.display = "block";
+            document.getElementById("aktif-oyuncu").innerText = kullaniciAdi;
+            
+            // Oyunu başlat
+            oyunDevamEdiyor = true;
+            oyunBasla();
+        }
+
+        // Yukarıdan Aşağı Donut Düşürme Motoru
+        function oyunBasla() {
+            if (!oyunDevamEdiyor) return;
+
+            // Her 1 saniyede bir yeni donut oluşturur
+            setInterval(() => {
+                if (oyunDevamEdiyor) {
+                    donutOlustur();
+                }
+            }, 1000);
+        }
+
+        function donutOlustur() {
+            const oyunAlani = document.getElementById("oyun-alani");
+            const donut = document.createElement("div");
+            donut.classList.add("donut");
+
+            // CSS ile emoji donut çizimi
+            donut.style.fontSize = "50px";
+            donut.innerHTML = "🍩"; 
+            
+            // Ekranın rastgele bir üst konumundan başlatıyoruz
+            const xPozisyonu = Math.random() * (window.innerWidth - 65);
+            donut.style.left = xPozisyonu + "px";
+            donut.style.top = "-70px";
+
+            oyunAlani.appendChild(donut);
+
+            // Donut'a tıklanınca skoru arttır ve donutu patlat
+            donut.addEventListener("touchstart", function() {
+                skorArttir(donut);
+            });
+            donut.addEventListener("mousedown", function() {
+                skorArttir(donut);
+            });
+
+            // Aşağıya doğru düşme hareketi
+            let yPozisyonu = -70;
+            const dusmeHizi = Math.random() * 3 + 2; // Rastgele hızlar
+
+            function dusur() {
+                if (!oyunDevamEdiyor) {
+                    donut.remove();
+                    return;
+                }
+                
+                yPozisyonu += dusmeHizi;
+                donut.style.top = yPozisyonu + "px";
+
+                // Eğer ekranın altına ulaşırsa donutu sil
+                if (yPozisyonu > window.innerHeight) {
+                    donut.remove();
+                } else {
+                    requestAnimationFrame(dusur);
+                }
+            }
+            requestAnimationFrame(dusur);
+        }
+
+        function skorArttir(donutElement) {
+            if (donutElement.style.pointerEvents === "none") return;
+            
+            // Aynı donuta tekrar basılmasın diye kilitliyoruz
+            donutElement.style.pointerEvents = "none";
+            donutElement.innerHTML = "✨"; // Patlama efekti
+            
+            skor += 10;
+            document.getElementById("skor-degeri").innerText = skor;
+
+            setTimeout(() => {
+                donutElement.remove();
+            }, 200);
+        }
+    </script>
+
+</body>
+</html>
             font-size: 15px; 
             border-radius: 8px; 
             border: 1px solid #333; 
