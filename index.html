@@ -3,179 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Çipil Donut Pro - E-Posta Korumalı</title>
+    <title>Çipil Donut QR Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #121212;
-            font-family: 'Arial', sans-serif;
-            user-select: none;
-            -webkit-user-select: none;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #121212;
+            font-family: 'Arial', sans-serif; user-select: none; -webkit-user-select: none;
         }
 
-        /* ANA GİRİŞ VE LOBİ MENÜSÜ */
+        /* GİRİŞ VE LOBİ MENÜSÜ */
         #giris-ekrani {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #121212 0%, #1e1e2e 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            color: white;
-            text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; color: white; text-align: center; overflow-y: auto;
         }
 
         .input-kutusu {
-            width: 250px;
-            padding: 12px;
-            font-size: 15px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background-color: #1a1a1a;
-            color: white;
-            text-align: center;
-            margin-bottom: 12px;
+            width: 250px; padding: 12px; font-size: 15px; border-radius: 8px;
+            border: 1px solid #333; background-color: #1a1a1a; color: white; text-align: center; margin-bottom: 12px;
         }
 
         .buton {
-            width: 276px;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            transition: 0.2s;
+            width: 276px; padding: 14px; font-size: 16px; font-weight: bold;
+            color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); transition: 0.2s;
         }
         .buton:active { transform: scale(0.98); }
 
-        /* ODA BEKLEME EKRANI */
-        #oda-ekrani {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #151522;
-            z-index: 9998;
-            color: white;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        /* QR KOD ALANLARI */
+        #qr-alani {
+            background: white; padding: 10px; border: 4px solid #ff3333; /* Kırmızı çerçeve */
+            border-radius: 12px; margin-top: 15px; display: none;
         }
 
-        #oyuncu-listesi {
-            width: 80%;
-            max-height: 150px;
-            background: #0f0f1a;
-            border: 1px solid #3897f0;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            overflow-y: auto;
+        #kamera-alani {
+            width: 280px; height: 280px; background: #000; border-radius: 12px;
+            margin-top: 15px; display: none; overflow: hidden; border: 2px solid #3897f0;
+        }
+
+        /* ODA BEKLEME EKRANI */
+        #oda-ekrani {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #151522; z-index: 9998; color: white;
+            flex-direction: column; align-items: center; justify-content: center;
         }
 
         /* GERÇEK OYUN ALANI */
         #oyun-alani {
-            display: none;
-            width: 100%;
-            height: 100%;
-            position: relative;
-            background-color: #121212;
+            display: none; width: 100%; height: 100%; position: relative; background-color: #121212;
         }
 
         #ust-panel {
-            position: absolute;
-            top: 15px;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 10;
+            position: absolute; top: 15px; width: 100%; text-align: center;
+            color: white; font-size: 16px; font-weight: bold; z-index: 10;
         }
 
-        /* YANDI CANLI LİDERLİK TABLOSU */
         #liderlik-tablosu {
-            position: absolute;
-            top: 75px;
-            right: 5%;
-            width: 150px;
-            background: rgba(0, 0, 0, 0.75);
-            border: 2px solid #ffcc00;
-            border-radius: 8px;
-            color: white;
-            padding: 8px;
-            font-size: 12px;
-            z-index: 20;
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+            position: absolute; top: 75px; right: 5%; width: 150px;
+            background: rgba(0, 0, 0, 0.75); border: 2px solid #ffcc00;
+            border-radius: 8px; color: white; padding: 8px; font-size: 12px; z-index: 20;
         }
 
         #oyun-kutusu {
-            position: absolute;
-            top: 75px;
-            left: 5%;
-            width: 90%;
-            height: calc(100% - 215px);
-            background-color: #1a1a1a;
-            border: 2px solid #333;
-            border-radius: 12px;
-            overflow: hidden;
+            position: absolute; top: 75px; left: 5%; width: 90%; height: calc(100% - 215px);
+            background-color: #1a1a1a; border: 2px solid #333; border-radius: 12px; overflow: hidden;
         }
 
-        /* Oyuncu (Yeşil Kare) */
         #sepet {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 50px;
-            background-color: #00ffcc;
-            border-radius: 10px;
-            box-shadow: 0 0 15px #00ffcc;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 50px; background-color: #00ffcc; border-radius: 10px; box-shadow: 0 0 15px #00ffcc;
         }
 
         .top {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            background-color: #ff3333;
-            border-radius: 50%;
-            box-shadow: 0 0 12px #ff3333;
+            position: absolute; width: 24px; height: 24px; background-color: #ff3333;
+            border-radius: 50%; box-shadow: 0 0 12px #ff3333;
         }
 
-        /* KONTROL BUTONLARI */
+        /* DİĞER GERÇEK OYUNCU (RAKİP) KARESI */
+        #rakip-sepet {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 50px; background-color: #ff33bb; border-radius: 10px;
+            box-shadow: 0 0 15px #ff33bb; display: none;
+        }
+
         #butonlar-alani {
-            position: absolute;
-            bottom: 15px;
-            width: 90%;
-            left: 5%;
-            display: flex;
-            justify-content: space-between;
+            position: absolute; bottom: 15px; width: 90%; left: 5%; display: flex; justify-content: space-between;
         }
 
         .kontrol-butonu {
-            width: 46%;
-            padding: 22px 0;
-            font-size: 22px;
-            font-weight: bold;
-            color: #00ffcc;
-            background-color: #1a1a1a;
-            border: 2px solid #00ffcc;
-            border-radius: 12px;
-            cursor: pointer;
-            text-align: center;
-            touch-action: manipulation;
+            width: 46%; padding: 22px 0; font-size: 22px; font-weight: bold;
+            color: #00ffcc; background-color: #1a1a1a; border: 2px solid #00ffcc;
+            border-radius: 12px; cursor: pointer; text-align: center; touch-action: manipulation;
         }
     </style>
 </head>
@@ -183,34 +105,32 @@
 
     <div id="giris-ekrani">
         <h1 style="font-size: 42px; margin-bottom: 5px; text-shadow: 0 0 15px #ff5722; color: #ff5722;">Çipil Donut</h1>
-        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Lütfen Kayıtlı E-Posta Adresinizle Giriş Yapın</p>
+        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">QR Kod Taratmalı Gerçek İki Telefon Bağlantısı</p>
         
         <input type="email" id="oyuncu-eposta" placeholder="Kayıtlı E-Posta Adresin..." class="input-kutusu">
-        <input type="text" id="oyuncu-adi" placeholder="Oyuncu Adın (Opsiyonel)..." class="input-kutusu">
-        <input type="password" id="oda-sifresi" placeholder="Oda Şifresi..." class="input-kutusu">
-        
-        <label style="font-size: 12px; color: #aaa; margin-bottom: 4px;">Maksimum Oyuncu Sınırı:</label>
-        <select id="max-oyuncu" class="input-kutusu" style="width: 276px;">
-            <option value="20">20 Oyuncu Odası</option>
-            <option value="50">50 Oyuncu (Büyük Kaos)</option>
-        </select>
+        <input type="text" id="oyuncu-adi" placeholder="Oyuncu Adın..." class="input-kutusu">
+        <input type="password" id="oda-sifresi" placeholder="Bağlantı Şifresi (Örn: 1907)" class="input-kutusu">
 
-        <button onclick="odaYonetimi('kur')" class="buton" style="background-color: #a83294;">👑 Oda Kur (Lobide Bekle)</button>
-        <button onclick="odaYonetimi('katil')" class="buton" style="background-color: #3897f0;">⚡ Şifre Gir ve Bağlan</button>
-        <div style="margin: 10px 0; color: #555;">──────── VEYA ────────</div>
-        <button onclick="odaYonetimi('alistirma')" class="buton" style="background-color: #222; margin-top: 0; color: #00ffcc; border: 1px solid #00ffcc;">🎯 Alıştırma (Tek Kişilik Mod)</button>
+        <button onclick="odaKur()" class="buton" style="background-color: #ff3333;">🔴 Oda Kur & QR Kod Üret</button>
+        <button onclick="kamerayiAc()" class="buton" style="background-color: #3897f0;">🔵 Kamerayı Aç & QR Okut</button>
+        <button onclick="alistirmaModu()" class="buton" style="background-color: #222; color: #00ffcc; border: 1px solid #00ffcc;">🎯 Alıştırma (Tek Kişilik)</button>
+
+        <div id="qr-alani">
+            <div id="qrcode"></div>
+            <p style="color:#000; font-size:12px; margin:5px 0 0 0; font-weight:bold;">Diğer telefona bu kodu okut!</p>
+        </div>
+
+        <div id="kamera-alani">
+            <div id="reader" style="width: 100%;"></div>
+        </div>
     </div>
 
     <div id="oda-ekrani">
-        <h2 id="lobi-baslik" style="color: #00ffcc;">Oda Kuruldu!</h2>
-        <p id="oda-kapasite" style="font-weight: bold; color: #ffcc00;"></p>
-        
-        <div id="oyuncu-listesi">
-            <div id="liste-icerik" style="line-height: 22px;"></div>
-        </div>
-
-        <button id="mac-baslat-btn" onclick="maciBaslat()" class="buton" style="background-color: #00ffcc; color: #121212; display: none; width: 280px; font-size: 18px;">
-            🚀 MAÇI BAŞLAT (Herkes Girsin)
+        <h2 id="lobi-baslik" style="color: #00ffcc;">Bağlantı Kuruluyor...</h2>
+        <p id="baglanti-durumu" style="color: #ffcc00; font-weight: bold;">Cihazların eşleşmesi bekleniyor...</p>
+        <br>
+        <button id="mac-baslat-btn" onclick="maciBaslatKomutu()" class="buton" style="background-color: #00ffcc; color: #121212; display: none; width: 280px; font-size: 18px;">
+            🚀 MAÇI BAŞLAT (Aynı Anda Girin)
         </button>
     </div>
 
@@ -228,7 +148,7 @@
 
         <div id="oyun-kutusu">
             <div id="sepet"></div>
-        </div>
+            <div id="rakip-sepet"></div> </div>
 
         <div id="butonlar-alani">
             <div class="kontrol-butonu" id="btn-sol">SOL</div>
@@ -237,7 +157,7 @@
     </div>
 
     <script>
-        // TEK TEK SENİNLE İLGİLİ OLAN 50 ÖZEL E-POSTA LİSTESİ
+        // 50 Adet Onaylı E-Posta Listesi
         const izinliEpostalar = [
             "cipil@donut.com", "cipildonut@io.com", "serefturancelik@sudo.com", "robotistan@cipil.com", 
             "arduino@leonardo.com", "oruldu@altinordu.com", "ordu@cipil.com", "deneyap@turkiye.com",
@@ -254,74 +174,118 @@
             "turkcell@aile.com", "cipilpro@donut.com"
         ];
 
-        let skor = 0;
-        let can = 3;
-        let oyunAktif = false;
-        let sepetX = 50;
-        const sepetHizi = 1.8; 
-        let oyunModu = "cok"; 
-        let lobiIsim = "";
-        let rakipler = [];
+        let skor = 0; let rakipSkor = 0; let can = 3;
+        let oyunAktif = false; let sepetX = 50; let rakipX = 50;
+        const sepetHizi = 1.8; let oyunModu = "solo";
+        let lobiIsim = "Oyuncu"; let rakipIsim = "Rakip";
+        let solBasili = false; let sagBasili = false;
         
-        let solBasili = false;
-        let sagBasili = false;
+        // PeerJS Bağlantı Değişkenleri
+        let peer; let conn; let html5QrcodeScanner;
 
-        function odaYonetimi(aksiyon) {
-            // E-posta kontrolü
+        // E-Posta Onaylama Fonksiyonu
+        function epostaKontrolEt() {
             let eposta = document.getElementById("oyuncu-eposta").value.trim().toLowerCase();
-            lobiIsim = document.getElementById("oyuncu-adi").value.trim();
-            let sifre = document.getElementById("oda-sifresi").value.trim();
-            let limit = parseInt(document.getElementById("max-oyuncu").value);
-
             if (!izinliEpostalar.includes(eposta)) {
-                alert("Bu e-posta kayıtlı değil balım! Giriş reddedildi.");
-                return;
+                alert("Bu e-posta kayıtlı değil balım!");
+                return false;
             }
-
-            if (lobiIsim === "") lobiIsim = eposta.split("@")[0]; // İsim yazmadıysa e-postanın başını alır
-
-            if (aksiyon === "alistirma") {
-                oyunModu = "alistirma";
-                can = "∞"; 
-                maciBaslat();
-                return;
-            }
-
-            if (sifre === "") {
-                alert("Balım, şifreli odaya girmek veya kurmak için bir şifre yazmalısın!");
-                return;
-            }
-
-            document.getElementById("giris-ekrani").style.display = "none";
-            document.getElementById("oda-ekrani").style.display = "flex";
-
-            rakipler = [];
-            for (let i = 1; i < limit; i++) {
-                rakipler.push({
-                    isim: "Bot_" + Math.floor(Math.random() * 899 + 100),
-                    skor: 0
-                });
-            }
-
-            if (aksiyon === "kur") {
-                document.getElementById("lobi-baslik").innerText = "👑 ODA LOBİSİ (Şifre: " + sifre + ")";
-                document.getElementById("oda-kapasite").innerText = "Durum: Doluyor... Sınır: " + limit + " Kişi";
-                document.getElementById("mac-baslat-btn").style.display = "block";
-                
-                let icerik = `<span style="color:#00ffcc">• ${lobiIsim} (Kuran)</span><br>`;
-                rakipler.slice(0, 5).forEach(r => {
-                    icerik += `<span style="color:#aaa">• ${r.isim} (Bağlandı)</span><br>`;
-                });
-                document.getElementById("liste-icerik").innerHTML = icerik;
-
-            } else if (aksiyon === "katil") {
-                document.getElementById("lobi-baslik").innerText = "⚡ ODAYA GİRİLDİ";
-                document.getElementById("oda-kapasite").innerText = "Oda sahibi maçı başlatıyor...";
-                document.getElementById("liste-icerik").innerHTML = `<span>• ${lobiIsim}</span><br><span style="color:#aaa">• Kurucu bekleniyor...</span>`;
-                setTimeout(() => { maciBaslat(); }, 2000);
-            }
+            lobiIsim = document.getElementById("oyuncu-adi").value.trim() || eposta.split("@")[0];
+            return true;
         }
 
+        // 1. TELEFON: ODA KURMA VE QR KOD OLUŞTURMA
+        function odaKur() {
+            if (!epostaKontrolEt()) return;
+            let sifre = document.getElementById("oda-sifresi").value.trim();
+            if(!sifre) { alert("Lütfen bir şifre belirleyin!"); return; }
+
+            document.getElementById("qr-alani").style.display = "block";
+            document.getElementById("qrcode").innerHTML = "";
+
+            // Benzersiz bir bağlantı kimliği (ID) oluşturuyoruz
+            let benzersizID = "cipil-donut-" + sifre;
+            peer = new Peer(benzersizID);
+
+            peer.on('open', function(id) {
+                // QR Kodun içine bu benzersiz kimliği gömüyoruz
+                new QRCode(document.getElementById("qrcode"), { text: id, width: 158, height: 158 });
+                alert("Oda oluşturuldu! Şimdi 2. telefondan kamerayı açıp bu QR kodu okutun.");
+            });
+
+            peer.on('connection', function(connection) {
+                conn = connection;
+                roluAyarla();
+            });
+        }
+
+        // 2. TELEFON: KAMERAYI AÇIP QR KOD OKUTMA
+        function kamerayiAc() {
+            if (!epostaKontrolEt()) return;
+            document.getElementById("kamera-alani").style.display = "block";
+
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render((decodedText) => {
+                html5QrcodeScanner.clear();
+                document.getElementById("kamera-alani").style.display = "none";
+                
+                // QR koddan gelen ID ile direkt 1. telefona bağlanıyoruz
+                peer = new Peer();
+                peer.on('open', function() {
+                    conn = peer.connect(decodedText);
+                    roluAyarla();
+                });
+            }, () => {});
+        }
+
+        // BAĞLANTI KURULDUKTAN SONRAKİ ORTAK AYARLAR
+        function roluAyarla() {
+            document.getElementById("giris-ekrani").style.display = "none";
+            document.getElementById("oda-ekrani").style.display = "flex";
+            oyunModu = "multiplayer";
+
+            conn.on('open', function() {
+                document.getElementById("baglanti-durumu").innerText = "CİHAZLAR BAĞLANDI! Maç Başlayabilir.";
+                document.getElementById("mac-baslat-btn").style.display = "block";
+                document.getElementById("rakip-sepet").style.display = "block";
+                
+                // İsmini diğer telefona gönder
+                conn.send({ tip: "isim", deger: lobiIsim });
+            });
+
+            conn.on('data', function(data) {
+                if (data.tip === "isim") {
+                    rakipIsim = data.deger;
+                }
+                if (data.tip === "basla") {
+                    maciBaslat();
+                }
+                if (data.tip === "hareket") {
+                    rakipX = data.deger;
+                    document.getElementById("rakip-sepet").style.style.left = rakipX + "%";
+                }
+                if (data.tip === "skor") {
+                    rakipSkor = data.deger;
+                    liderlikTablosunuGuncelle();
+                }
+            });
+        }
+
+        // MAÇI BAŞLATMA KOMUTU (1. telefondan basılınca ikisini de uçurur)
+        function maciBaslatKomutu() {
+            if(conn) conn.send({ tip: "basla" });
+            maciBaslat();
+        }
+
+        // ALIŞTIRMA MODU (TEK KİŞİLİK)
+        function alistirmaModu() {
+            if (!epostaKontrolEt()) return;
+            oyunModu = "alistirma";
+            can = "∞";
+            maciBaslat();
+        }
+
+        // GERÇEK OYUNUN BAŞLAMASI
         function maciBaslat() {
             document.getElementById("giris-ekrani").style.display = "none";
             document.getElementById("oda-ekrani").style.display = "none";
@@ -338,69 +302,54 @@
 
             oyunAktif = true;
             guncellemeDongusu();
-            topDusurucuDöngü();
-            botMotorunuBaslat();
+            topDusurucuDongu();
         }
 
+        // DURMADAN BASILI TUTARAK GİTME SİSTEMİ
         const sepetElement = document.getElementById("sepet");
-
         function guncellemeDongusu() {
             if (!oyunAktif) return;
 
-            if (solBasili && sepetX > 4) {
-                sepetX -= sepetHizi;
-            }
-            if (sagBasili && sepetX < 96) {
-                sepetX += sepetHizi;
-            }
+            if (solBasili && sepetX > 4) { sepetX -= sepetHizi; }
+            if (sagBasili && sepetX < 96) { sepetX += sepetHizi; }
             sepetElement.style.left = sepetX + "%";
+
+            // Pozisyonumuzu gerçek zamanlı olarak diğer telefona aktarıyoruz
+            if(oyunModu === "multiplayer" && conn) {
+                conn.send({ tip: "hareket", deger: sepetX });
+            }
+
             requestAnimationFrame(guncellemeDongusu);
         }
 
+        // Basılı Tutma Tetikleyicileri
         document.getElementById("btn-sol").addEventListener("touchstart", (e) => { e.preventDefault(); solBasili = true; });
         document.getElementById("btn-sol").addEventListener("touchend", () => { solBasili = false; });
         document.getElementById("btn-sag").addEventListener("touchstart", (e) => { e.preventDefault(); sagBasili = true; });
         document.getElementById("btn-sag").addEventListener("touchend", () => { sagBasili = false; });
-
         document.getElementById("btn-sol").addEventListener("mousedown", () => { solBasili = true; });
         document.getElementById("btn-sol").addEventListener("mouseup", () => { solBasili = false; });
-        document.getElementById("btn-sol").addEventListener("mouseleave", () => { solBasili = false; });
         document.getElementById("btn-sag").addEventListener("mousedown", () => { sagBasili = true; });
         document.getElementById("btn-sag").addEventListener("mouseup", () => { sagBasili = false; });
-        document.getElementById("btn-sag").addEventListener("mouseleave", () => { sagBasili = false; });
 
-        function botMotorunuBaslat() {
-            if (oyunModu === "alistirma") return;
-            setInterval(() => {
-                if (oyunAktif) {
-                    rakipler.forEach(r => {
-                        if (Math.random() > 0.35) {
-                            r.skor += 4;
-                        }
-                    });
-                    liderlikTablosunuGuncelle();
-                }
-            }, 600);
-        }
-
+        // LİDERLİK TABLOSU GÜNCELLEME
         function liderlikTablosunuGuncelle() {
-            let tumSkorlar = [{ isim: "Sen", skor: skor }, ...rakipler];
-            tumSkorlar.sort((a, b) => b.skor - a.skor);
+            let siralama = [
+                { isim: lobiIsim + " (Sen)", skor: skor },
+                { isim: rakipIsim, skor: rakipSkor }
+            ];
+            siralama.sort((a, b) => b.skor - a.skor);
 
-            let benimSiram = tumSkorlar.findIndex(x => x.isim === "Sen") + 1;
-
-            let html = `<b style="color:#ffcc00;">Sıran: #${benimSiram}</b><hr style="border:0.5px solid #333;">`;
-            tumSkorlar.slice(0, 5).forEach((o, index) => {
-                let renk = o.isim === "Sen" ? "color:#00ffcc; font-weight:bold;" : "color:#fff;";
-                html += `<div style="${renk}">${index + 1}. ${o.isim}: ${o.skor}</div>`;
+            let html = "";
+            siralama.forEach((o, index) => {
+                html += `<div>${index + 1}. ${o.isim}: ${o.skor}</div>`;
             });
             document.getElementById("liderler-listesi").innerHTML = html;
         }
 
-        function topDusurucuDöngü() {
-            setInterval(() => {
-                if (oyunAktif) topOlustur();
-            }, 650);
+        // TOP DÜŞÜRME VE HIZ MOTORU
+        function topDusurucuDongu() {
+            setInterval(() => { if (oyunAktif) topOlustur(); }, 650);
         }
 
         function topOlustur() {
@@ -409,12 +358,11 @@
             top.classList.add("top");
 
             const rastgeleX = Math.random() * (kutu.clientWidth - 24);
-            top.style.left = rastgeleX + "px";
-            top.style.top = "0px";
+            top.style.left = rastgeleX + "px"; top.style.top = "0px";
             kutu.appendChild(top);
 
             let topY = 0;
-            const dusmeHizi = Math.random() * 3 + 8; 
+            const dusmeHizi = Math.random() * 3 + 8.5; // Maksimum seri ve hızlı
 
             function hareket() {
                 if (!oyunAktif) { top.remove(); return; }
@@ -424,16 +372,17 @@
 
                 const sepetSol = sepetElement.offsetLeft;
                 const sepetSag = sepetSol + sepetElement.clientWidth;
-                const topSol = top.offsetLeft;
-                const topSag = topSol + top.clientWidth;
+                const topSol = top.offsetLeft; const topSag = topSol + top.clientWidth;
 
                 if (topY >= (kutu.clientHeight - 70) && topY <= (kutu.clientHeight - 20)) {
                     if (topSag >= sepetSol && topSol <= sepetSag) {
                         skor += 4; 
                         document.getElementById("skor-tabelasi").innerText = skor;
-                        if (oyunModu !== "alistirma") liderlikTablosunuGuncelle();
-                        top.remove();
-                        return;
+                        if (oyunModu === "multiplayer" && conn) {
+                            conn.send({ tip: "skor", deger: skor });
+                            liderlikTablosunuGuncelle();
+                        }
+                        top.remove(); return;
                     }
                 }
 
@@ -444,7 +393,7 @@
                         document.getElementById("can-tabelasi").innerText = can;
                         if (can <= 0) {
                             oyunAktif = false;
-                            alert("Oyun Bitti Balım! Toplam Skorun: " + skor);
+                            alert("Oyun Bitti! Toplam Skorun: " + skor);
                             location.reload();
                         }
                     }
