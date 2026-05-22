@@ -1,87 +1,124 @@
-<div id="giris-ekrani" style="
-    position: fixed; 
-    top: 0; left: 0; 
-    width: 100%; height: 100%; 
-    background: linear-gradient(135deg, #121212 0%, #1e1e2e 100%); 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    z-index: 9999; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: white;">
-    
-    <h1 style="font-size: 36px; margin-bottom: 10px; text-shadow: 0 0 10px #ff5722; color: #ff5722;">Çipil Donut</h1>
-    <p style="color: #aaa; margin-bottom: 30px; font-size: 16px;">Hoş geldin balım! Giriş yöntemini seç:</p>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çipil Donut</title>
+    <style>
+        /* Tüm sayfa ve oyun alanı ayarları */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #121212;
+        }
+        
+        #oyun-alani {
+            width: 100%;
+            height: 100%;
+            display: none; /* Giriş yapılana kadar oyun gizli kalır */
+        }
+    </style>
+</head>
+<body>
 
-    <button onclick="misafirGirisi()" style="
-        width: 260px; 
-        padding: 14px; 
-        font-size: 16px; 
-        font-weight: bold; 
-        background-color: #3897f0; 
-        color: white; 
-        border: none; 
-        border-radius: 8px; 
-        cursor: pointer; 
-        box-shadow: 0 4px 15px rgba(56, 151, 240, 0.4);
-        transition: transform 0.2s;">
-        Misafir Olarak Devam Et
-    </button>
+    <div id="giris-ekrani" style="
+        position: fixed; 
+        top: 0; left: 0; 
+        width: 100%; height: 100%; 
+        background: linear-gradient(135deg, #121212 0%, #1e1e2e 100%); 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 9999; 
+        font-family: sans-serif;
+        color: white;">
+        
+        <h1 style="font-size: 36px; margin-bottom: 10px; text-shadow: 0 0 10px #ff5722; color: #ff5722;">Çipil Donut</h1>
+        <p style="color: #aaa; margin-bottom: 30px; font-size: 16px;">Hoş geldin! Giriş yöntemini seç:</p>
 
-    <div style="margin: 20px 0; color: #555;">──────── OR ────────</div>
+        <button onclick="sistemeGirisYap('Misafir Oyuncu')" style="
+            width: 260px; 
+            padding: 14px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            background-color: #3897f0; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(56, 151, 240, 0.4);">
+            Misafir Olarak Devam Et
+        </button>
 
-    <input type="text" id="oyuncu-adi" placeholder="Veya adını yaz..." style="
-        width: 236px; 
-        padding: 12px; 
-        font-size: 15px; 
-        border-radius: 8px; 
-        border: 1px solid #333; 
-        background-color: #1a1a1a; 
-        color: white; 
-        text-align: center;
-        margin-bottom: 12px;">
+        <div style="margin: 20px 0; color: #555;">──────── VEYA ────────</div>
 
-    <button onclick="isimleGiris()" style="
-        width: 260px; 
-        padding: 12px; 
-        font-size: 15px; 
-        background-color: transparent; 
-        color: #3897f0; 
-        border: 1px solid #3897f0; 
-        border-radius: 8px; 
-        cursor: pointer;
-        font-weight: 600;">
-        Kullanıcı Adıyla Gir
-    </button>
-</div>
+        <input type="text" id="oyuncu-adi" placeholder="Kullanıcı adı yaz..." style="
+            width: 236px; 
+            padding: 12px; 
+            font-size: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #333; 
+            background-color: #1a1a1a; 
+            color: white; 
+            text-align: center;
+            margin-bottom: 12px;">
 
-<script>
-// Misafir olarak tıklandığında çalışacak fonksiyon
-function misafirGirisi() {
-    const misafirID = "Misafir_" + Math.floor(Math.random() * 90000 + 10000);
-    console.log("Instagram Tarzı Giriş Başarılı! ID: " + misafirID);
-    
-    // Giriş ekranını ekrandan kaldırır
-    document.getElementById("giris-ekrani").style.removeProperty("display");
-    document.getElementById("giris-ekrani").style.display = "none";
-    
-    // OYUNU BAŞLATMA KODUNU BURAYA BAĞLA
-    // Örnek: oyunuBaslat(misafirID, "Misafir Oyuncu");
-}
+        <button onclick="isimleGirisYap()" style="
+            width: 260px; 
+            padding: 12px; 
+            font-size: 15px; 
+            background-color: transparent; 
+            color: #3897f0; 
+            border: 1px solid #3897f0; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-weight: 600;">
+            Kullanıcı Adıyla Gir
+        </button>
+    </div>
 
-// İsim yazarak girmek isteyenler için fonksiyon
-function isimleGiris() {
-    const girilenIsim = document.getElementById("oyuncu-adi").value.trim();
-    if (girilenIsim === "") {
-        alert("Balım, lütfen bir kullanıcı adı yaz ya da direkt Misafir butonuna bas!");
-        return;
-    }
-    const oyuncuID = "Oyuncu_" + Math.floor(Math.random() * 90000 + 10000);
-    
-    document.getElementById("giris-ekrani").style.display = "none";
-    
-    // OYUNU BAŞLATMA KODUNU BURAYA BAĞLA
-    // Örnek: oyunuBaslat(oyuncuID, girilenIsim);
-}
-</script>
+    <div id="oyun-alani">
+        <h2 style="color: white; text-align: center; margin-top: 20%;">Oyun Başladı! Donutları Topla!</h2>
+    </div>
+
+    <script>
+        // İsim kutusunu kontrol eden fonksiyon
+        function isimleGirisYap() {
+            const girilenIsim = document.getElementById("oyuncu-adi").value.trim();
+            if (girilenIsim === "") {
+                alert("Lütfen bir kullanıcı adı yazın veya direkt Misafir butonuna basın!");
+                return;
+            }
+            sistemeGirisYap(girilenIsim);
+        }
+
+        // Beyaz ekranı engelleyen ve oyunu asıl başlatan yer
+        function sistemeGirisYap(kullaniciAdi) {
+            // Giriş ekranını kapat, oyun alanını aç
+            document.getElementById("giris-ekrani").style.display = "none";
+            document.getElementById("oyun-alani").style.display = "block";
+            
+            console.log("Giriş Başarılı! Oyuncu: " + kullaniciAdi);
+
+            // Oyun motorunu tetikle (Eğer altta kendi oyun fonksiyonun varsa onu çalıştırır)
+            if (typeof oyunBasla === "function") {
+                oyunBasla(kullaniciAdi);
+            } else {
+                // Sayfa boyutunu yenileyerek oyun motorlarını (Godot/Unity/Canvas) uykudan uyandırır
+                window.dispatchEvent(new Event('resize'));
+            }
+        }
+
+        // OYUNUN KENDİ KODLARINI (EĞER VARSA) BU SATIRIN ALTINA EKLEYEBİLİRSİN
+        function oyunBasla(isim) {
+            // Oyununun asıl başlama döngüsü buraya yazılabilir.
+            console.log(isim + " için oyun döngüsü tetiklendi.");
+        }
+    </script>
+
+</body>
+</html>
