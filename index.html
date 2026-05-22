@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Çipil Donut - Üyelik ve Paylaşım Dünyası</title>
+    <title>Çipil Donut - Gelişmiş Pro Sürüm</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,7 +22,6 @@
             font-family: 'Arial', sans-serif; user-select: none; -webkit-user-select: none;
         }
 
-        /* ORTAK PANEL STİLLERİ */
         .ekran-katmani {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #121212 0%, #1e1e2e 100%);
@@ -42,17 +41,14 @@
         }
         .buton:active { transform: scale(0.98); }
 
-        /* QR PAYLAŞIM KAĞIDI */
         #paylasim-ekrani { display: none; }
         .qr-kagit {
             background: white; padding: 20px; border: 6px dashed #ff3333;
             border-radius: 16px; margin: 15px 0; display: inline-block;
         }
 
-        /* SİSTEM EKRANLARI */
         #auth-ekrani, #ana-menu, #oda-ekrani, #oyun-alani { display: none; }
 
-        /* MAĞAZA VE KONTROLLER */
         #magaza-alani { margin-top: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; width: 280px; }
         .magaza-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 14px; }
         
@@ -78,6 +74,14 @@
         .kontrol-butonu {
             width: 46%; padding: 22px 0; font-size: 22px; font-weight: bold;
             color: #00ffcc; background-color: #1a1a1a; border: 2px solid #00ffcc; border-radius: 12px; text-align: center;
+        }
+
+        .kamera-secim-grubu {
+            display: flex; justify-content: space-between; width: 260px; margin-top: 8px;
+        }
+        .kamera-secim-btn {
+            width: 48%; padding: 10px 0; font-size: 13px; font-weight: bold; color: white;
+            background-color: #333; border: 1px solid #555; border-radius: 6px; cursor: pointer;
         }
     </style>
 </head>
@@ -115,6 +119,13 @@
         <div id="giris-paneli" style="display: none;">
             <input type="text" id="login-kullanici" placeholder="Kullanıcı Adın..." class="input-kutusu"><br>
             <input type="password" id="login-sifre" placeholder="Şifren..." class="input-kutusu"><br>
+            
+            <div style="margin-bottom: 15px; text-align: center;">
+                <label style="font-size: 14px; color: #00ffcc; cursor: pointer;">
+                    <input type="checkbox" id="login-beni-hatirla"> 💾 Beni Hatırla
+                </label>
+            </div>
+
             <button onclick="hesapGirisYap()" class="buton" style="background-color: #00ffcc; color:#121212;">🔓 Giriş Yap</button>
             <p style="font-size: 13px; color: #666; margin-top: 10px;">Hesabın yoksa: <a href="#" onclick="authPanelDegis(true)" style="color:#a83294; text-decoration:none;">Kaydol</a></p>
         </div>
@@ -145,8 +156,12 @@
             <p style="color:#000; font-size:11px; margin:5px 0 0 0; font-weight:bold;">Arkadaşın bunu 'Kamerayla Bağlan' diyerek okutmalı!</p>
         </div>
 
-        <div id="menu-kamera-alani" style="width:260px; height:260px; background:#000; border-radius:12px; margin-top:15px; display:none; overflow:hidden; border:2px solid #3897f0;">
-            <div id="reader" style="width:100%;"></div>
+        <div id="menu-kamera-alani" style="width:260px; display:none; margin-top:15px;">
+            <div id="reader" style="width:100%; background:#000; border-radius:12px; overflow:hidden; border:2px solid #3897f0;"></div>
+            <div class="kamera-secim-grubu">
+                <button class="kamera-secim-btn" id="btn-on-kamera" onclick="kameraDegistir('user')">📱 Ön Kamera</button>
+                <button class="kamera-secim-btn" id="btn-arka-kamera" style="background-color: #3897f0;" onclick="kameraDegistir('environment')">📷 Arka Kamera</button>
+            </div>
         </div>
     </div>
 
@@ -199,11 +214,24 @@
         let seciliSkin = "🍩";
         let kayitliKullanicilar = JSON.parse(localStorage.getItem("cipil_users")) || {};
         let aktifGirisYapan = null;
+        
+        let mevcutKameraYonu = "environment"; // Varsayılan arka kamera
+        let html5QrcodeScanner = null;
 
         window.onload = function() {
-            let gosterilsinMi = localStorage.getItem("cipil_paylasim_gosterme");
             new QRCode(document.getElementById("site-paylas-qr"), { text: window.location.href, width: 160, height: 160 });
+            
+            // BENİ HATIRLA KONTROLÜ
+            let hatirlananKullanici = localStorage.getItem("cipil_hatirlanan_user");
+            if (hatirlananKullanici && kayitliKullanicilar[hatirlananKullanici]) {
+                aktifGirisYapan = hatirlananKullanici;
+                document.getElementById("paylasim-ekrani").style.display = "none";
+                document.getElementById("auth-ekrani").style.display = "none";
+                menuYükle(hatirlananKullanici);
+                return;
+            }
 
+            let gosterilsinMi = localStorage.getItem("cipil_paylasim_gosterme");
             if (gosterilsinMi === "true") {
                 document.getElementById("auth-ekrani").style.display = "flex";
             } else {
@@ -252,14 +280,24 @@
 
             if(kayitliKullanicilar[user] && kayitliKullanicilar[user].sifre === pass) {
                 aktifGirisYapan = user;
+                
+                // Beni hatırla seçildiyse hafızaya al
+                if(document.getElementById("login-beni-hatirla").checked) {
+                    localStorage.setItem("cipil_hatirlanan_user", user);
+                }
+
                 document.getElementById("auth-ekrani").style.display = "none";
-                document.getElementById("ana-menu").style.display = "flex";
-                document.getElementById("menu-user-adi").innerText = user;
-                document.getElementById("menu-cuzdan").innerText = para;
-                if(acikSkinler.includes("🍔")) document.getElementById("skin-btn-1").innerText = "SEÇ";
+                menuYükle(user);
             } else {
                 alert("Hatalı kullanıcı adı veya şifre girdin Çipil!");
             }
+        }
+
+        function menuYükle(user) {
+            document.getElementById("ana-menu").style.display = "flex";
+            document.getElementById("menu-user-adi").innerText = user;
+            document.getElementById("menu-cuzdan").innerText = para;
+            if(acikSkinler.includes("🍔")) document.getElementById("skin-btn-1").innerText = "SEÇ";
         }
 
         function skinSatinal(skin, maliyet) {
@@ -281,7 +319,7 @@
         let oyunAktif = false; let sepetX = 50; let rakipX = 50;
         const sepetHizi = 1.8; let oyunModu = "solo";
         let rakipIsim = "Rakip"; let solBasili = false; let sagBasili = false;
-        let peer; let conn; let html5QrcodeScanner;
+        let peer; let conn;
 
         function odaYarat() {
             let code = document.getElementById("oda-baglanti-sifresi").value.trim();
@@ -298,6 +336,18 @@
 
         function odaTaraKamera() {
             document.getElementById("menu-kamera-alani").style.display = "block";
+            kameraBaslat(mevcutKameraYonu);
+        }
+
+        function kameraBaslat(yon) {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().then(() => { taranmayaBasla(yon); });
+            } else {
+                taranmayaBasla(yon);
+            }
+        }
+
+        function taranmayaBasla(yon) {
             html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
             html5QrcodeScanner.render((decodedText) => {
                 html5QrcodeScanner.clear();
@@ -308,6 +358,18 @@
                     baglantiHazir(false);
                 });
             }, () => {});
+        }
+
+        function kameraDegistir(yeniYon) {
+            mevcutKameraYonu = yeniYon;
+            if(yeniYon === 'user') {
+                document.getElementById("btn-on-kamera").style.backgroundColor = "#3897f0";
+                document.getElementById("btn-arka-kamera").style.backgroundColor = "#333";
+            } else {
+                document.getElementById("btn-arka-kamera").style.backgroundColor = "#3897f0";
+                document.getElementById("btn-on-kamera").style.backgroundColor = "#333";
+            }
+            kameraBaslat(mevcutKameraYonu);
         }
 
         function baglantiHazir(isHost) {
