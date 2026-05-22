@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Çipil Donut Pro</title>
+    <title>Çipil Donut Pro - E-Posta Korumalı</title>
     <style>
         body, html {
             margin: 0;
@@ -33,7 +33,7 @@
         }
 
         .input-kutusu {
-            width: 240px;
+            width: 250px;
             padding: 12px;
             font-size: 15px;
             border-radius: 8px;
@@ -45,7 +45,7 @@
         }
 
         .buton {
-            width: 264px;
+            width: 276px;
             padding: 14px;
             font-size: 16px;
             font-weight: bold;
@@ -183,13 +183,14 @@
 
     <div id="giris-ekrani">
         <h1 style="font-size: 42px; margin-bottom: 5px; text-shadow: 0 0 15px #ff5722; color: #ff5722;">Çipil Donut</h1>
-        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Gerçekçi Çok Oyunculu & Alıştırma Modu</p>
+        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Lütfen Kayıtlı E-Posta Adresinizle Giriş Yapın</p>
         
-        <input type="text" id="oyuncu-adi" placeholder="Oyuncu Adın..." class="input-kutusu">
+        <input type="email" id="oyuncu-eposta" placeholder="Kayıtlı E-Posta Adresin..." class="input-kutusu">
+        <input type="text" id="oyuncu-adi" placeholder="Oyuncu Adın (Opsiyonel)..." class="input-kutusu">
         <input type="password" id="oda-sifresi" placeholder="Oda Şifresi..." class="input-kutusu">
         
         <label style="font-size: 12px; color: #aaa; margin-bottom: 4px;">Maksimum Oyuncu Sınırı:</label>
-        <select id="max-oyuncu" class="input-kutusu" style="width: 264px;">
+        <select id="max-oyuncu" class="input-kutusu" style="width: 276px;">
             <option value="20">20 Oyuncu Odası</option>
             <option value="50">50 Oyuncu (Büyük Kaos)</option>
         </select>
@@ -236,25 +237,48 @@
     </div>
 
     <script>
+        // TEK TEK SENİNLE İLGİLİ OLAN 50 ÖZEL E-POSTA LİSTESİ
+        const izinliEpostalar = [
+            "cipil@donut.com", "cipildonut@io.com", "serefturancelik@sudo.com", "robotistan@cipil.com", 
+            "arduino@leonardo.com", "oruldu@altinordu.com", "ordu@cipil.com", "deneyap@turkiye.com",
+            "vscode@codeon.com", "codepen@donut.com", "unity@cipilgames.com", "godot@cipil.com",
+            "minecraft@donut.com", "brawlstars@cipil.com", "roblox@donut.com", "clashroyale@cipil.com",
+            "valorant@cipil.com", "capcut@editor.com", "blynk@iotcipil.com", "dcmotor@pervane.com",
+            "havya@lehimci.com", "abim@leonardo.com", "baba@oyuncu.com", "anne@ev.com",
+            "gokce@guvenlik.com", "codeon@ide.com", "bursluluk@sinav.com", "dorduncusinif@okul.com",
+            "4sinif@scholarship.com", "altinorduburs@sinav.com", "2wd@araba.com", "seffafaraba@motor.com",
+            "mesafesensoru@pin.com", "pin891011@arduino.com", "tftlcd@ekran.com", "oleddisplay@robotistan.com",
+            "joystick@module.com", "esp32@micro.com", "mblock@kodlama.com", "prosedurel@generation.com",
+            "obstacle@avoidance.com", "consoletycoon@game.com", "reels@creator.com", "yapayzeka@video.com",
+            "sandalye@kaplama.com", "upholstery@repair.com", "t3kys@deneyap.com", "esınav@belge.com",
+            "turkcell@aile.com", "cipilpro@donut.com"
+        ];
+
         let skor = 0;
         let can = 3;
         let oyunAktif = false;
         let sepetX = 50;
-        const sepetHizi = 1.8; // Akıcı sürekli gidiş hızı
+        const sepetHizi = 1.8; 
         let oyunModu = "cok"; 
         let lobiIsim = "";
         let rakipler = [];
         
-        // Basılı tutma mekanizması değişkenleri
         let solBasili = false;
         let sagBasili = false;
 
         function odaYonetimi(aksiyon) {
+            // E-posta kontrolü
+            let eposta = document.getElementById("oyuncu-eposta").value.trim().toLowerCase();
             lobiIsim = document.getElementById("oyuncu-adi").value.trim();
             let sifre = document.getElementById("oda-sifresi").value.trim();
             let limit = parseInt(document.getElementById("max-oyuncu").value);
 
-            if (lobiIsim === "") lobiIsim = "Oyuncu_" + Math.floor(Math.random() * 900);
+            if (!izinliEpostalar.includes(eposta)) {
+                alert("Bu e-posta kayıtlı değil balım! Giriş reddedildi.");
+                return;
+            }
+
+            if (lobiIsim === "") lobiIsim = eposta.split("@")[0]; // İsim yazmadıysa e-postanın başını alır
 
             if (aksiyon === "alistirma") {
                 oyunModu = "alistirma";
@@ -271,7 +295,6 @@
             document.getElementById("giris-ekrani").style.display = "none";
             document.getElementById("oda-ekrani").style.display = "flex";
 
-            // Bot Rakipleri Önden Hazırla (Liderlik Tablosu İçin)
             rakipler = [];
             for (let i = 1; i < limit; i++) {
                 rakipler.push({
@@ -319,7 +342,6 @@
             botMotorunuBaslat();
         }
 
-        // BASILI TUTMA VE HAREKET MOTORU (YÜZDE YÜZ SÜREKLİ GİTME)
         const sepetElement = document.getElementById("sepet");
 
         function guncellemeDongusu() {
@@ -335,13 +357,11 @@
             requestAnimationFrame(guncellemeDongusu);
         }
 
-        // Dokunmatik Ekran Basılı Tutma Dinleyicileri
         document.getElementById("btn-sol").addEventListener("touchstart", (e) => { e.preventDefault(); solBasili = true; });
         document.getElementById("btn-sol").addEventListener("touchend", () => { solBasili = false; });
         document.getElementById("btn-sag").addEventListener("touchstart", (e) => { e.preventDefault(); sagBasili = true; });
         document.getElementById("btn-sag").addEventListener("touchend", () => { sagBasili = false; });
 
-        // Fare ile Tıklayıp Basılı Tutma Dinleyicileri
         document.getElementById("btn-sol").addEventListener("mousedown", () => { solBasili = true; });
         document.getElementById("btn-sol").addEventListener("mouseup", () => { solBasili = false; });
         document.getElementById("btn-sol").addEventListener("mouseleave", () => { solBasili = false; });
@@ -349,32 +369,27 @@
         document.getElementById("btn-sag").addEventListener("mouseup", () => { sagBasili = false; });
         document.getElementById("btn-sag").addEventListener("mouseleave", () => { sagBasili = false; });
 
-        // BOTLARIN KENDİ KENDİNE SKOR KASMA MOTORU (SEN DURSAN BİLE OYNARLAR)
         function botMotorunuBaslat() {
             if (oyunModu === "alistirma") return;
             setInterval(() => {
                 if (oyunAktif) {
                     rakipler.forEach(r => {
-                        // Botlar rastgele sürelerde hızlıca puan kazanır
                         if (Math.random() > 0.35) {
                             r.skor += 4;
                         }
                     });
                     liderlikTablosunuGuncelle();
                 }
-            }, 600); // Çok hızlı ve canlı güncelleme
+            }, 600);
         }
 
-        // LİDERLİK TABLOSUNDA KAÇINCI OLDUĞUNU GÖSTERME
         function liderlikTablosunuGuncelle() {
             let tumSkorlar = [{ isim: "Sen", skor: skor }, ...rakipler];
-            // Skorları büyükten küçüğe sırala
             tumSkorlar.sort((a, b) => b.skor - a.skor);
 
-            // Kendi sıramızı buluyoruz
             let benimSiram = tumSkorlar.findIndex(x => x.isim === "Sen") + 1;
 
-            let html = `<b style="color:#00ffcc;">Sıran: #${benimSiram}</b><hr style="border:0.5px solid #333;">`;
+            let html = `<b style="color:#ffcc00;">Sıran: #${benimSiram}</b><hr style="border:0.5px solid #333;">`;
             tumSkorlar.slice(0, 5).forEach((o, index) => {
                 let renk = o.isim === "Sen" ? "color:#00ffcc; font-weight:bold;" : "color:#fff;";
                 html += `<div style="${renk}">${index + 1}. ${o.isim}: ${o.skor}</div>`;
@@ -385,7 +400,7 @@
         function topDusurucuDöngü() {
             setInterval(() => {
                 if (oyunAktif) topOlustur();
-            }, 650); // Hız efsane arttırıldı!
+            }, 650);
         }
 
         function topOlustur() {
@@ -399,7 +414,6 @@
             kutu.appendChild(top);
 
             let topY = 0;
-            // TAM TADINDA, EKSTRA HIZLI DÜŞÜŞ AYARI
             const dusmeHizi = Math.random() * 3 + 8; 
 
             function hareket() {
@@ -413,7 +427,6 @@
                 const topSol = top.offsetLeft;
                 const topSag = topSol + top.clientWidth;
 
-                // Çarpışma Yakalama
                 if (topY >= (kutu.clientHeight - 70) && topY <= (kutu.clientHeight - 20)) {
                     if (topSag >= sepetSol && topSol <= sepetSag) {
                         skor += 4; 
@@ -424,7 +437,6 @@
                     }
                 }
 
-                // Yere düşme kontrolü
                 if (topY > kutu.clientHeight) {
                     top.remove();
                     if (oyunModu !== "alistirma") {
